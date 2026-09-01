@@ -1,0 +1,11 @@
+# Logs e dependências
+logs
+*.log
+npm-debug.log*
+node_modules
+dist
+dist-ssr
+
+# Editor
+.vscode/
+.DS_Store
