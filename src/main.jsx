@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
@@ -33,3 +34,15 @@ function App() {
 }
 
 createRoot(document.getElementById('root')).render(<App />)
+=======
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import App from './App.jsx'
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+)
+>>>>>>> d340be09327d0baaf5e122d2b93c46dc96bf0e74
