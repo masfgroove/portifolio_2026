@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import './App.css'
+import { CvChat } from './components/CvChat'
+
 
 function App() {
   const [messages, setMessages] = useState([
@@ -92,7 +94,8 @@ function App() {
           </button>
         </form>
       </section>
-
+{/* Componente do Chat com a IA importado */}
+      <CvChat />
       <div className="ticks"></div>
 
       {/* Seção de Experiências / Histórico */}
