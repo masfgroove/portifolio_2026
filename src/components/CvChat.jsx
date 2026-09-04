@@ -1,82 +1,72 @@
-import { useState } from 'react'
+import React, { useState } from 'react';
+import { Pinecone } from '@pinecone-database/pinecone';
 
-export function CvChat() {
-  const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'Olá! Sou a IA assistente do currículo do Marco Antônio. Pergunte o que quiser sobre a minha carreira, tecnologias (Java, Cloud, IA) ou experiências!' }
-  ])
-  const [input, setInput] = useState('')
-  const [loading, setLoading] = useState(false)
+export default function ChatWidget() {
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSendMessage = async (e) => {
-    e.preventDefault()
-    if (!input.trim() || loading) return
+  const sendMessage = async (e) => {
+    e.preventDefault();
+    if (!input.trim()) return;
 
-    const userMessage = input.trim()
-    setInput('')
-    setMessages((prev) => [...prev, { role: 'user', content: userMessage }])
-    setLoading(true)
+    const userMessage = { role: 'user', content: input };
+    setMessages((prev) => [...prev, userMessage]);
+    setInput('');
+    setLoading(true);
 
     try {
-      const response = await fetch('https://prod-1-data.ke.pinecone.io/assistant/chat/cv', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Api-Key': 'pcsk_5SBCRY_3tJJBb4ze4BYmNF6vjYPQaihJyd2s8d81AawH2tadZ5uLzJytPc6AN5xCCTPkz6'
-        },
-        body: JSON.stringify({
-          messages: [
-            { role: 'user', content: userMessage }
-          ]
-        })
-      })
+      // Inicializa o cliente do Pinecone com a sua chave
+      const pc = new Pinecone({ 
+        apiKey: 'pcsk_5SBCRY_3tJJBb4ze4BYmNF6vjYPQaihJyd2s8d81AawH2tadZ5uLzJytPc6AN5xCCTPkz6',
+        dangerouslyAllowBrowser: true // Permite rodar no navegador para testes locais
+      });
 
-      const data = await response.json()
-      const assistantReply = data.message?.content || data.choices?.[0]?.message?.content || "Desculpe, não consegui processar a resposta no momento."
+      const assistant = pc.assistant('cv');
 
-      setMessages((prev) => [...prev, { role: 'assistant', content: assistantReply }])
+      const response = await assistant.chat({
+        messages: [{ role: 'user', content: userMessage.content }]
+      });
+
+      const botMessage = { role: 'assistant', content: response.message.content };
+      setMessages((prev) => [...prev, botMessage]);
     } catch (error) {
-      console.error("Erro ao falar com o assistente:", error)
-      setMessages((prev) => [...prev, { role: 'assistant', content: 'Ocorreu um erro ao conectar com o assistente. Tente novamente mais tarde.' }])
+      console.error("Erro ao falar com o Pinecone:", error);
+      setMessages((prev) => [...prev, { role: 'assistant', content: 'Ops, ocorreu um erro ao consultar o assistente.' }]);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
-    <div style={{ maxWidth: '800px', margin: '4rem auto', padding: '1.5rem', background: '#0b0f19', borderRadius: '12px', border: '1px solid #1e293b' }}>
-      <h3 style={{ marginBottom: '1rem', textAlign: 'center', color: '#38bdf8', fontSize: '1.25rem', fontWeight: '600' }}>Converse com o meu Currículo (IA)</h3>
-      
-      <div style={{ height: '320px', overflowY: 'auto', border: '1px solid #1e293b', padding: '1rem', borderRadius: '8px', marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '10px', background: '#020617' }}>
+    <div style={{ maxWidth: '400px', margin: '20px auto', border: '1px solid #ccc', borderRadius: '8px', padding: '16px', fontFamily: 'sans-serif' }}>
+      <h3>Assistente Virtual (CV)</h3>
+      <div style={{ height: '300px', overflowY: 'scroll', border: '1px solid #eee', padding: '8px', marginBottom: '12px', background: '#f9f9f9' }}>
         {messages.map((msg, index) => (
-          <div key={index} style={{ 
-            alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-            background: msg.role === 'user' ? '#0284c7' : '#1e293b',
-            color: '#fff',
-            padding: '10px 14px',
-            borderRadius: '8px',
-            maxWidth: '80%',
-            wordBreak: 'break-word',
-            fontSize: '0.9rem'
-          }}>
-            <strong>{msg.role === 'user' ? 'Você: ' : 'Assistente: '}</strong>
-            {msg.content}
+          <div key={index} style={{ margin: '8px 0', textAlign: msg.role === 'user' ? 'right' : 'left' }}>
+            <span style={{ 
+              display: 'inline-block', 
+              padding: '8px 12px', 
+              borderRadius: '8px', 
+              background: msg.role === 'user' ? '#007bff' : '#e2e2e2', 
+              color: msg.role === 'user' ? '#fff' : '#000' 
+            }}>
+              {msg.content}
+            </span>
           </div>
         ))}
-        {loading && <div style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.85rem' }}>Assistente está digitando...</div>}
+        {loading && <div style={{ fontSize: '12px', color: '#666' }}>Pensando...</div>}
       </div>
-
-      <form onSubmit={handleSendMessage} style={{ display: 'flex', gap: '10px' }}>
+      <form onSubmit={sendMessage} style={{ display: 'flex', gap: '8px' }}>
         <input 
           type="text" 
           value={input} 
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Ex: Quais tecnologias o Marco domina?" 
-          style={{ flex: 1, padding: '10px 14px', borderRadius: '6px', border: '1px solid #334155', background: '#020617', color: '#fff', outline: 'none' }}
+          onChange={(e) => setInput(e.target.value)} 
+          placeholder="Digite sua pergunta..." 
+          style={{ flex: 1, padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
         />
-        <button type="submit" style={{ padding: '10px 20px', background: '#38bdf8', color: '#0f172a', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
-          Enviar
-        </button>
+        <button type="submit" style={{ padding: '8px 16px', background: '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Enviar</button>
       </form>
     </div>
-  )
+  );
 }
