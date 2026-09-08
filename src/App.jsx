@@ -11,6 +11,7 @@ function App() {
   const [loading, setLoading] = useState(false)
 
 // --- ADICIONE ESTE BLOCO ABAIXO ---
+ // Dispara o registro de visita assim que o portfólio abre
   useEffect(() => {
     const trackVisit = async () => {
       try {
