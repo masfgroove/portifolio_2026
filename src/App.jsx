@@ -11,17 +11,18 @@ function App() {
   const [loading, setLoading] = useState(false)
 
 // --- ADICIONE ESTE BLOCO ABAIXO ---
- // Dispara o registro de visita assim que o portfólio abre
-  useEffect(() => {
+ useEffect(() => {
     const trackVisit = async () => {
       try {
-        await fetch('/api/track-visit', { method: 'POST' })
+        await fetch('/api/track-visit', { method: 'POST' });
       } catch (err) {
-        console.error("Erro ao registrar visita:", err)
+        console.error("Erro ao registrar visita:", err);
       }
-    }
-    trackVisit()
-  }, [])
+    };
+    trackVisit();
+  }, []);
+
+  
   // -----------------------------------
 
 
