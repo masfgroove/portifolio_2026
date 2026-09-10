@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import './App.css'
-import { CvChat } from './components/CvChat'
-
+import CvChat from './components/CvChat'
 
 function App() {
   const [messages, setMessages] = useState([
@@ -10,8 +9,8 @@ function App() {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
 
-// --- ADICIONE ESTE BLOCO ABAIXO ---
- useEffect(() => {
+  // Dispara o registro de visita assim que o portfólio abre
+  useEffect(() => {
     const trackVisit = async () => {
       try {
         await fetch('/api/track-visit', { method: 'POST' });
@@ -21,10 +20,6 @@ function App() {
     };
     trackVisit();
   }, []);
-
-  
-  // -----------------------------------
-
 
   // Função que envia a pergunta para a API do Pinecone Assistant
   const handleSendMessage = async (e) => {
@@ -110,7 +105,8 @@ function App() {
           </button>
         </form>
       </section>
-{/* Componente do Chat com a IA importado */}
+
+      {/* Componente do Chat com a IA importado */}
       <CvChat />
       <div className="ticks"></div>
 
