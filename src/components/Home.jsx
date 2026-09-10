@@ -1,7 +1,55 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { ArrowUpRight, Server, Code2, BriefcaseBusiness, Download, Globe } from 'lucide-react'
 
 export function Home({ go }) {
+  // Estados para o Modal de Download do CV
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [leadName, setLeadName] = useState('')
+  const [leadEmail, setLeadEmail] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [successMessage, setSuccessMessage] = useState('')
+
+  // Função para salvar o Lead e liberar o PDF
+  const handleDownloadSubmit = async (e) => {
+    e.preventDefault()
+    if (!leadName || !leadEmail) return
+
+    setSubmitting(true)
+
+    try {
+      const response = await fetch('/api/save-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: leadName, email: leadEmail })
+      })
+
+      if (response.ok) {
+        setSuccessMessage('Obrigado! O download do seu currículo vai começar.')
+        
+        setTimeout(() => {
+          const link = document.createElement('a')
+          link.href = '/CV Marco Antonio 04022026.docx'
+          link.download = 'CV_Marco_Antonio.docx'
+          document.body.appendChild(link)
+          link.click()
+          document.body.removeChild(link)
+          
+          setIsModalOpen(false)
+          setSuccessMessage('')
+          setLeadName('')
+          setLeadEmail('')
+        }, 1500)
+      } else {
+        alert('Erro ao registrar contato. Tente novamente.')
+      }
+    } catch (err) {
+      console.error('Erro:', err)
+      alert('Erro de conexão.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   return (
     <>
       <section className="relative isolate overflow-hidden border-b border-slate-800 pt-32">
@@ -18,17 +66,19 @@ export function Home({ go }) {
               Sou Marco Antonio da Silva Ferreira, Desenvolvedor Java Pleno e Full Stack com ampla bagagem em sistemas corporativos robustos, migração de plataformas de grande porte e integração com tecnologias modernas, Inteligência Artificial e automações.
             </p>
             <div className="mt-9 flex flex-wrap gap-4">
-              <button onClick={() => go('projects')} className="flex items-center gap-2 rounded-xl bg-cyan-400 px-5 py-3.5 font-bold text-slate-950 transition hover:bg-cyan-300">
+              <button onClick={() => go('projects')} className="flex items-center gap-2 rounded-xl bg-cyan-400 px-5 py-3.5 font-bold text-slate-950 transition hover:bg-cyan-300 cursor-pointer">
                 Ver projetos <ArrowUpRight size={18}/>
               </button>
-              <a 
-                href="/CV Marco Antonio 04022026.docx" 
-                download="CV_Marco_Antonio.docx"
-                className="flex items-center gap-2 rounded-xl border border-cyan-500/40 bg-slate-900/80 px-5 py-3.5 font-bold text-cyan-400 hover:border-cyan-400 hover:bg-cyan-400/10 transition"
+              
+              {/* Botão que abre o Modal de Captura */}
+              <button 
+                onClick={() => setIsModalOpen(true)}
+                className="flex items-center gap-2 rounded-xl border border-cyan-500/40 bg-slate-900/80 px-5 py-3.5 font-bold text-cyan-400 hover:border-cyan-400 hover:bg-cyan-400/10 transition cursor-pointer"
               >
                 <Download size={18}/> Baixar Currículo
-              </a>
-              <a href="mailto:Masfgroove2012@gmail.com" className="rounded-xl border border-slate-700 px-5 py-3.5 font-bold text-white hover:border-cyan-400">
+              </button>
+
+              <a href="mailto:Masfgroove2012@gmail.com" className="rounded-xl border border-slate-700 px-5 py-3.5 font-bold text-white hover:border-cyan-400 flex items-center">
                 Falar comigo
               </a>
             </div>
@@ -60,6 +110,68 @@ export function Home({ go }) {
           </div>
         </div>
       </section>
+
+      {/* Modal de Captura de Lead */}
+      {isModalOpen && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+          background: 'rgba(0, 0, 0, 0.8)', display: 'flex', justifyContent: 'center',
+          alignItems: 'center', zIndex: 1000, padding: '1rem'
+        }}>
+          <div style={{
+            background: '#1a1a1a', padding: '2rem', borderRadius: '12px',
+            border: '1px solid #333', width: '100%', maxWidth: '400px', position: 'relative'
+          }}>
+            <button 
+              onClick={() => setIsModalOpen(false)}
+              style={{
+                position: 'absolute', top: '10px', right: '15px', background: 'none',
+                border: 'none', color: '#aaa', fontSize: '1.5rem', cursor: 'pointer'
+              }}
+            >
+              &times;
+            </button>
+            
+            <h3 style={{ color: '#fff', marginBottom: '0.5rem', textAlign: 'center' }}>Baixar Currículo</h3>
+            <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '1.5rem', textAlign: 'center' }}>
+              Preencha rapidinho para liberar o download direto:
+            </p>
+
+            {successMessage ? (
+              <p style={{ color: '#25D366', textAlign: 'center', fontWeight: 'bold' }}>{successMessage}</p>
+            ) : (
+              <form onSubmit={handleDownloadSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <input 
+                  type="text" 
+                  placeholder="Seu Nome" 
+                  value={leadName}
+                  onChange={(e) => setLeadName(e.target.value)}
+                  required
+                  style={{ padding: '10px', borderRadius: '6px', border: '1px solid #555', background: '#222', color: '#fff' }}
+                />
+                <input 
+                  type="email"
+                  placeholder="Seu E-mail" 
+                  value={leadEmail}
+                  onChange={(e) => setLeadEmail(e.target.value)}
+                  required
+                  style={{ padding: '10px', borderRadius: '6px', border: '1px solid #555', background: '#222', color: '#fff' }}
+                />
+                <button 
+                  type="submit" 
+                  disabled={submitting}
+                  style={{ 
+                    padding: '12px', background: '#61dafb', color: '#000', 
+                    border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', marginTop: '5px' 
+                  }}
+                >
+                  {submitting ? 'Salvando...' : 'Liberar Download'}
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
 
       <section className="mx-auto max-w-7xl px-6 py-24">
         <div className="grid gap-12 lg:grid-cols-2">
