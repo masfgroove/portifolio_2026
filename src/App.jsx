@@ -8,7 +8,14 @@ function App() {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
 
-  // Função que envia a pergunta para a API do Pinecone Assistant
+  // Estados para o Modal de Download do CV
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [leadName, setLeadName] = useState('')
+  const [leadEmail, setLeadEmail] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [successMessage, setSuccessMessage] = useState('')
+
+  // Função que envia a pergunta para a API de Chat
   const handleSendMessage = async (e) => {
     e.preventDefault()
     if (!input.trim() || loading) return
@@ -44,17 +51,141 @@ function App() {
     }
   }
 
+  // Função para salvar o Lead e liberar o PDF
+  const handleDownloadSubmit = async (e) => {
+    e.preventDefault()
+    if (!leadName || !leadEmail) return
+
+    setSubmitting(true)
+
+    try {
+      // Envia para a API que salva no Supabase
+      const response = await fetch('/api/save-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: leadName, email: leadEmail })
+      })
+
+      if (response.ok) {
+        setSuccessMessage('Obrigado! O download do seu currículo vai começar.')
+        
+        // Simula o download do PDF (coloque o nome do seu arquivo de PDF na pasta public)
+        setTimeout(() => {
+          const link = document.createElement('a')
+          link.href = '/CV Marco Antonio 04022026.docx.pdf' // Certifique-se do nome exato do PDF na pasta public
+          link.download = 'CV_Marco_Antonio.pdf'
+          document.body.appendChild(link)
+          link.click()
+          document.body.removeChild(link)
+          
+          setIsModalOpen(false)
+          setSuccessMessage('')
+          setLeadName('')
+          setLeadEmail('')
+        }, 1500)
+      } else {
+        alert('Erro ao registrar contato. Tente novamente.')
+      }
+    } catch (err) {
+      console.error('Erro:', err)
+      alert('Erro de conexão.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   return (
     <>
-      {/* Cabeçalho do Perfil */}
-      <section id="center" style={{ textAlign: 'center', padding: '2rem 1rem' }}>
+      {/* Cabeçalho do Perfil com Botão de Destaque para Download */}
+      <section id="center" style={{ textAlign: 'center', padding: '2.5rem 1rem 1.5rem 1rem' }}>
         <div>
           <h1>Marco Antônio da Silva Ferreira</h1>
-          <p style={{ color: '#94a3b8', marginTop: '0.5rem' }}>
+          <p style={{ color: '#94a3b8', marginTop: '0.5rem', marginBottom: '1.5rem' }}>
             Desenvolvedor Java | Automação | IA & Cloud | Sistemas Corporativos
           </p>
+          
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            style={{ 
+              background: '#25D366', 
+              color: '#000', 
+              border: 'none', 
+              padding: '12px 24px', 
+              borderRadius: '8px', 
+              fontWeight: 'bold', 
+              fontSize: '1rem', 
+              cursor: 'pointer',
+              boxShadow: '0 4px 14px rgba(37, 211, 102, 0.4)',
+              transition: 'transform 0.2s'
+            }}
+          >
+            📥 Baixar Currículo em PDF
+          </button>
         </div>
       </section>
+
+      {/* Modal de Captura de Lead */}
+      {isModalOpen && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+          background: 'rgba(0, 0, 0, 0.8)', display: 'flex', justifyContent: 'center',
+          alignItems: 'center', zIndex: 1000, padding: '1rem'
+        }}>
+          <div style={{
+            background: '#1a1a1a', padding: '2rem', borderRadius: '12px',
+            border: '1px solid #333', width: '100%', maxWidth: '400px', position: 'relative'
+          }}>
+            <button 
+              onClick={() => setIsModalOpen(false)}
+              style={{
+                position: 'absolute', top: '10px', right: '15px', background: 'none',
+                border: 'none', color: '#aaa', fontSize: '1.5rem', cursor: 'pointer'
+              }}
+            >
+              &times;
+            </button>
+            
+            <h3 style={{ color: '#fff', marginBottom: '0.5rem', textAlign: 'center' }}>Baixar Currículo</h3>
+            <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '1.5rem', textAlign: 'center' }}>
+              Preencha rapidinho para liberar o download direto:
+            </p>
+
+            {successMessage ? (
+              <p style={{ color: '#25D366', textAlign: 'center', fontWeight: 'bold' }}>{successMessage}</p>
+            ) : (
+              <form onSubmit={handleDownloadSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <input 
+                  type="text" 
+                  placeholder="Seu Nome" 
+                  value={leadName}
+                  onChange={(e) => setLeadName(e.target.value)}
+                  required
+                  style={{ padding: '10px', borderRadius: '6px', border: '1px solid #555', background: '#222', color: '#fff' }}
+                />
+                <input 
+                  type="emailpx" 
+                  type="email"
+                  placeholder="Seu E-mail" 
+                  value={leadEmail}
+                  onChange={(e) => setLeadEmail(e.target.value)}
+                  required
+                  style={{ padding: '10px', borderRadius: '6px', border: '1px solid #555', background: '#222', color: '#fff' }}
+                />
+                <button 
+                  type="submit" 
+                  disabled={submitting}
+                  style={{ 
+                    padding: '12px', background: '#61dafb', color: '#000', 
+                    border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', marginTop: '5px' 
+                  }}
+                >
+                  {submitting ? 'Salvando...' : 'Liberar Download'}
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Seção do Chat com o Currículo (IA) */}
       <section id="cv-chat" style={{ maxWidth: '700px', margin: '1rem auto 2rem auto', padding: '1.5rem', background: '#1a1a1a', borderRadius: '12px', border: '1px solid #333' }}>
