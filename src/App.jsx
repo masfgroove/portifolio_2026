@@ -69,10 +69,10 @@ function App() {
       if (response.ok) {
         setSuccessMessage('Obrigado! O download do seu currículo vai começar.')
         
-        // Simula o download do PDF (coloque o nome do seu arquivo de PDF na pasta public)
+        // Simula o download do PDF
         setTimeout(() => {
           const link = document.createElement('a')
-          link.href = '/CV Marco Antonio 04022026.docx.pdf' // Certifique-se do nome exato do PDF na pasta public
+          link.href = '/CV Marco Antonio 04022026.docx.pdf'
           link.download = 'CV_Marco_Antonio.pdf'
           document.body.appendChild(link)
           link.click()
@@ -163,7 +163,6 @@ function App() {
                   style={{ padding: '10px', borderRadius: '6px', border: '1px solid #555', background: '#222', color: '#fff' }}
                 />
                 <input 
-                  type="emailpx" 
                   type="email"
                   placeholder="Seu E-mail" 
                   value={leadEmail}
