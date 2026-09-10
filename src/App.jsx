@@ -1,148 +1,99 @@
 import { useState } from 'react'
 import './App.css'
+import { CvChat } from './components/CvChat'
+
 
 function App() {
-  // Estados para o Modal de Download do CV
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [leadName, setLeadName] = useState('')
-  const [leadEmail, setLeadEmail] = useState('')
-  const [submitting, setSubmitting] = useState(false)
-  const [successMessage, setSuccessMessage] = useState('')
+  const [messages, setMessages] = useState([
+    { role: 'assistant', content: 'Olá! Sou a IA assistente do currículo do Marco Antônio. Pergunte o que quiser sobre a minha carreira, tecnologias (Java, Cloud, IA) ou experiências!' }
+  ])
+  const [input, setInput] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  // Função para salvar o Lead e liberar o PDF
-  const handleDownloadSubmit = async (e) => {
+  // Função que envia a pergunta para a API do Pinecone Assistant
+  const handleSendMessage = async (e) => {
     e.preventDefault()
-    if (!leadName || !leadEmail) return
+    if (!input.trim() || loading) return
 
-    setSubmitting(true)
+    const userMessage = input.trim()
+    setInput('')
+    setMessages((prev) => [...prev, { role: 'user', content: userMessage }])
+    setLoading(true)
 
     try {
-      // Envia para a API que salva no Supabase
-      const response = await fetch('/api/save-lead', {
+      const response = await fetch('https://prod-1-data.ke.pinecone.io/assistant/chat/cv', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: leadName, email: leadEmail })
+        headers: {
+          'Content-Type': 'application/json',
+          'Api-Key': 'pcsk_5SBCRY_3tJJBb4ze4BYmNF6vjYPQaihJyd2s8d81AawH2tadZ5uLzJytPc6AN5xCCTPkz6'
+        },
+        body: JSON.stringify({
+          messages: [
+            { role: 'user', content: userMessage }
+          ]
+        })
       })
 
-      if (response.ok) {
-        setSuccessMessage('Obrigado! O download do seu currículo vai começar.')
-        
-        // Simula o download do PDF
-        setTimeout(() => {
-          const link = document.createElement('a')
-          link.href = '/CV Marco Antonio 04022026.docx.pdf'
-          link.download = 'CV_Marco_Antonio.pdf'
-          document.body.appendChild(link)
-          link.click()
-          document.body.removeChild(link)
-          
-          setIsModalOpen(false)
-          setSuccessMessage('')
-          setLeadName('')
-          setLeadEmail('')
-        }, 1500)
-      } else {
-        alert('Erro ao registrar contato. Tente novamente.')
-      }
-    } catch (err) {
-      console.error('Erro:', err)
-      alert('Erro de conexão.')
+      const data = await response.json()
+      const assistantReply = data.message?.content || data.choices?.[0]?.message?.content || "Desculpe, não consegui processar a resposta no momento."
+
+      setMessages((prev) => [...prev, { role: 'assistant', content: assistantReply }])
+    } catch (error) {
+      console.error("Erro ao falar com o assistente:", error)
+      setMessages((prev) => [...prev, { role: 'assistant', content: 'Ocorreu um erro ao conectar com o assistente. Tente novamente mais tarde.' }])
     } finally {
-      setSubmitting(false)
+      setLoading(false)
     }
   }
 
   return (
     <>
-      {/* Cabeçalho do Perfil com Botão de Destaque para Download */}
-      <section id="center" style={{ textAlign: 'center', padding: '2.5rem 1rem 1.5rem 1rem' }}>
+      {/* Cabeçalho do Perfil */}
+      <section id="center" style={{ textAlign: 'center', padding: '2rem 1rem' }}>
         <div>
           <h1>Marco Antônio da Silva Ferreira</h1>
-          <p style={{ color: '#94a3b8', marginTop: '0.5rem', marginBottom: '1.5rem' }}>
+          <p style={{ color: '#94a3b8', marginTop: '0.5rem' }}>
             Desenvolvedor Java | Automação | IA & Cloud | Sistemas Corporativos
           </p>
-          
-          <button 
-            onClick={() => setIsModalOpen(true)}
-            style={{ 
-              background: '#25D366', 
-              color: '#000', 
-              border: 'none', 
-              padding: '12px 24px', 
-              borderRadius: '8px', 
-              fontWeight: 'bold', 
-              fontSize: '1rem', 
-              cursor: 'pointer',
-              boxShadow: '0 4px 14px rgba(37, 211, 102, 0.4)',
-              transition: 'transform 0.2s'
-            }}
-          >
-            📥 Baixar Currículo em PDF
-          </button>
         </div>
       </section>
 
-      {/* Modal de Captura de Lead */}
-      {isModalOpen && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-          background: 'rgba(0, 0, 0, 0.8)', display: 'flex', justifyContent: 'center',
-          alignItems: 'center', zIndex: 1000, padding: '1rem'
-        }}>
-          <div style={{
-            background: '#1a1a1a', padding: '2rem', borderRadius: '12px',
-            border: '1px solid #333', width: '100%', maxWidth: '400px', position: 'relative'
-          }}>
-            <button 
-              onClick={() => setIsModalOpen(false)}
-              style={{
-                position: 'absolute', top: '10px', right: '15px', background: 'none',
-                border: 'none', color: '#aaa', fontSize: '1.5rem', cursor: 'pointer'
-              }}
-            >
-              &times;
-            </button>
-            
-            <h3 style={{ color: '#fff', marginBottom: '0.5rem', textAlign: 'center' }}>Baixar Currículo</h3>
-            <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '1.5rem', textAlign: 'center' }}>
-              Preencha rapidinho para liberar o download direto:
-            </p>
-
-            {successMessage ? (
-              <p style={{ color: '#25D366', textAlign: 'center', fontWeight: 'bold' }}>{successMessage}</p>
-            ) : (
-              <form onSubmit={handleDownloadSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <input 
-                  type="text" 
-                  placeholder="Seu Nome" 
-                  value={leadName}
-                  onChange={(e) => setLeadName(e.target.value)}
-                  required
-                  style={{ padding: '10px', borderRadius: '6px', border: '1px solid #555', background: '#222', color: '#fff' }}
-                />
-                <input 
-                  type="email"
-                  placeholder="Seu E-mail" 
-                  value={leadEmail}
-                  onChange={(e) => setLeadEmail(e.target.value)}
-                  required
-                  style={{ padding: '10px', borderRadius: '6px', border: '1px solid #555', background: '#222', color: '#fff' }}
-                />
-                <button 
-                  type="submit" 
-                  disabled={submitting}
-                  style={{ 
-                    padding: '12px', background: '#61dafb', color: '#000', 
-                    border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', marginTop: '5px' 
-                  }}
-                >
-                  {submitting ? 'Salvando...' : 'Liberar Download'}
-                </button>
-              </form>
-            )}
-          </div>
+      {/* Seção do Chat com o Currículo (IA) */}
+      <section id="cv-chat" style={{ maxWidth: '700px', margin: '1rem auto 2rem auto', padding: '1.5rem', background: '#1a1a1a', borderRadius: '12px', border: '1px solid #333' }}>
+        <h2 style={{ marginBottom: '1rem', textAlign: 'center', color: '#61dafb', fontSize: '1.2rem' }}>Converse com o meu Currículo (IA)</h2>
+        
+        <div style={{ height: '320px', overflowY: 'auto', border: '1px solid #444', padding: '1rem', borderRadius: '8px', marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '10px', background: '#121212' }}>
+          {messages.map((msg, index) => (
+            <div key={index} style={{ 
+              alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
+              background: msg.role === 'user' ? '#007acc' : '#2d2d2d',
+              color: '#fff',
+              padding: '10px 14px',
+              borderRadius: '8px',
+              maxWidth: '80%',
+              wordBreak: 'break-word',
+              fontSize: '0.95rem'
+            }}>
+              <strong>{msg.role === 'user' ? 'Você: ' : 'Assistente: '}</strong>
+              {msg.content}
+            </div>
+          ))}
+          {loading && <div style={{ color: '#888', fontStyle: 'italic', fontSize: '0.9rem' }}>Assistente está digitando...</div>}
         </div>
-      )}
+
+        <form onSubmit={handleSendMessage} style={{ display: 'flex', gap: '10px' }}>
+          <input 
+            type="text" 
+            value={input} 
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Ex: Quais tecnologias o Marco domina?" 
+            style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #555', background: '#222', color: '#fff' }}
+          />
+          <button type="submit" style={{ padding: '10px 20px', background: '#61dafb', color: '#000', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
+            Enviar
+          </button>
+        </form>
+      </section>
 
       <div className="ticks"></div>
 
