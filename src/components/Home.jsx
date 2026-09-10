@@ -1,7 +1,7 @@
 import React from 'react'
 import { ArrowUpRight, Server, Code2, BriefcaseBusiness, Download, Globe } from 'lucide-react'
 
-export function Home({ go }) {
+export function Home({ go, openModal }) {
   return (
     <>
       <section className="relative isolate overflow-hidden border-b border-slate-800 pt-32">
@@ -21,14 +21,16 @@ export function Home({ go }) {
               <button onClick={() => go('projects')} className="flex items-center gap-2 rounded-xl bg-cyan-400 px-5 py-3.5 font-bold text-slate-950 transition hover:bg-cyan-300">
                 Ver projetos <ArrowUpRight size={18}/>
               </button>
-              <a 
-                href="/CV Marco Antonio 04022026.docx" 
-                download="CV_Marco_Antonio.docx"
-                className="flex items-center gap-2 rounded-xl border border-cyan-500/40 bg-slate-900/80 px-5 py-3.5 font-bold text-cyan-400 hover:border-cyan-400 hover:bg-cyan-400/10 transition"
+
+              {/* Botão que agora abre o Modal de Captura de Lead */}
+              <button 
+                onClick={openModal}
+                className="flex items-center gap-2 rounded-xl border border-cyan-500/40 bg-slate-900/80 px-5 py-3.5 font-bold text-cyan-400 hover:border-cyan-400 hover:bg-cyan-400/10 transition cursor-pointer"
               >
                 <Download size={18}/> Baixar Currículo
-              </a>
-              <a href="mailto:Masfgroove2012@gmail.com" className="rounded-xl border border-slate-700 px-5 py-3.5 font-bold text-white hover:border-cyan-400">
+              </button>
+
+              <a href="mailto:Masfgroove2012@gmail.com" className="rounded-xl border border-slate-700 px-5 py-3.5 font-bold text-white hover:border-cyan-400 flex items-center">
                 Falar comigo
               </a>
             </div>

@@ -2,54 +2,12 @@ import { useState } from 'react'
 import './App.css'
 
 function App() {
-  const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'Olá! Sou a IA assistente do currículo do Marco Antônio. Pergunte o que quiser sobre a minha carreira, tecnologias (Java, Cloud, IA) ou experiências!' }
-  ])
-  const [input, setInput] = useState('')
-  const [loading, setLoading] = useState(false)
-
   // Estados para o Modal de Download do CV
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [leadName, setLeadName] = useState('')
   const [leadEmail, setLeadEmail] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
-
-  // Função que envia a pergunta para a API de Chat
-  const handleSendMessage = async (e) => {
-    e.preventDefault()
-    if (!input.trim() || loading) return
-
-    const userMessage = input.trim()
-    setInput('')
-    setMessages((prev) => [...prev, { role: 'user', content: userMessage }])
-    setLoading(true)
-
-    try {
-      const response = await fetch('https://prod-1-data.ke.pinecone.io/assistant/chat/cv', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Api-Key': 'pcsk_5SBCRY_3tJJBb4ze4BYmNF6vjYPQaihJyd2s8d81AawH2tadZ5uLzJytPc6AN5xCCTPkz6'
-        },
-        body: JSON.stringify({
-          messages: [
-            { role: 'user', content: userMessage }
-          ]
-        })
-      })
-
-      const data = await response.json()
-      const assistantReply = data.message?.content || data.choices?.[0]?.message?.content || "Desculpe, não consegui processar a resposta no momento."
-
-      setMessages((prev) => [...prev, { role: 'assistant', content: assistantReply }])
-    } catch (error) {
-      console.error("Erro ao falar com o assistente:", error)
-      setMessages((prev) => [...prev, { role: 'assistant', content: 'Ocorreu um erro ao conectar com o assistente. Tente novamente mais tarde.' }])
-    } finally {
-      setLoading(false)
-    }
-  }
 
   // Função para salvar o Lead e liberar o PDF
   const handleDownloadSubmit = async (e) => {
@@ -185,43 +143,6 @@ function App() {
           </div>
         </div>
       )}
-
-      {/* Seção do Chat com o Currículo (IA) */}
-      <section id="cv-chat" style={{ maxWidth: '700px', margin: '1rem auto 2rem auto', padding: '1.5rem', background: '#1a1a1a', borderRadius: '12px', border: '1px solid #333' }}>
-        <h2 style={{ marginBottom: '1rem', textAlign: 'center', color: '#61dafb', fontSize: '1.2rem' }}>Converse com o meu Currículo (IA)</h2>
-        
-        <div style={{ height: '320px', overflowY: 'auto', border: '1px solid #444', padding: '1rem', borderRadius: '8px', marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '10px', background: '#121212' }}>
-          {messages.map((msg, index) => (
-            <div key={index} style={{ 
-              alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-              background: msg.role === 'user' ? '#007acc' : '#2d2d2d',
-              color: '#fff',
-              padding: '10px 14px',
-              borderRadius: '8px',
-              maxWidth: '80%',
-              wordBreak: 'break-word',
-              fontSize: '0.95rem'
-            }}>
-              <strong>{msg.role === 'user' ? 'Você: ' : 'Assistente: '}</strong>
-              {msg.content}
-            </div>
-          ))}
-          {loading && <div style={{ color: '#888', fontStyle: 'italic', fontSize: '0.9rem' }}>Assistente está digitando...</div>}
-        </div>
-
-        <form onSubmit={handleSendMessage} style={{ display: 'flex', gap: '10px' }}>
-          <input 
-            type="text" 
-            value={input} 
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ex: Quais tecnologias o Marco domina?" 
-            style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #555', background: '#222', color: '#fff' }}
-          />
-          <button type="submit" style={{ padding: '10px 20px', background: '#61dafb', color: '#000', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
-            Enviar
-          </button>
-        </form>
-      </section>
 
       <div className="ticks"></div>
 
