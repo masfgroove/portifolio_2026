@@ -26,19 +26,19 @@ export function Home({ go }) {
       if (response.ok) {
         setSuccessMessage('Obrigado! O download do seu currículo vai começar.')
         
-        setTimeout(() => {
-          const link = document.createElement('a')
-          link.href = '/CV Marco Antonio 04022026.docx'
-          link.download = 'CV_Marco_Antonio.docx'
-          document.body.appendChild(link)
-          link.click()
-          document.body.removeChild(link)
-          
-          setIsModalOpen(false)
-          setSuccessMessage('')
-          setLeadName('')
-          setLeadEmail('')
-        }, 1500)
+       setTimeout(() => {
+  const link = document.createElement('a')
+  link.href = '/curriculo.pdf' // Nome exato que você colocou dentro da pasta public
+  link.download = 'Curriculo_Marco_Antonio_Ferreira.pdf'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  
+  setIsModalOpen(false)
+  setSuccessMessage('')
+  setLeadName('')
+  setLeadEmail('')
+}, 1500)
       } else {
         alert('Erro ao registrar contato. Tente novamente.')
       }
