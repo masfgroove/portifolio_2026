@@ -139,7 +139,7 @@ export function Home({ go }) {
             
             <h3 style={{ color: '#fff', marginBottom: '0.5rem', textAlign: 'center' }}>Baixar Currículo</h3>
             <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '1.5rem', textAlign: 'center' }}>
-              Preencha rapidinho para liberar o download direto:
+              Download liberado:
             </p>
 
             {successMessage ? (
