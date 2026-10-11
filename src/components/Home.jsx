@@ -17,34 +17,39 @@ export function Home({ go }) {
     setSubmitting(true)
 
     try {
-      const response = await fetch('/api/save-lead', {
+      // OPCIONAL: Salva o contato no navegador (localStorage)
+      const existingLeads = JSON.parse(localStorage.getItem('cv_leads') || '[]')
+      existingLeads.push({ name: leadName, email: leadEmail, date: new Date().toISOString() })
+      localStorage.setItem('cv_leads', JSON.stringify(existingLeads))
+
+      // OPCIONAL: Enviar para um webhook do n8n (se tiver ativo)
+      /*
+      await fetch('SEU_WEBHOOK_N8N_AQUI', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: leadName, email: leadEmail })
       })
+      */
 
-      if (response.ok) {
-        setSuccessMessage('Obrigado! O download do seu currículo vai começar.')
+      setSuccessMessage('Obrigado! O download do seu currículo vai começar.')
+      
+      setTimeout(() => {
+        // Dispara o download do PDF contido na pasta public/curriculo.pdf
+        const link = document.createElement('a')
+        link.href = '/curriculo.pdf'
+        link.download = 'Curriculo_Marco_Antonio_Ferreira.pdf'
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
         
-       setTimeout(() => {
-  const link = document.createElement('a')
-  link.href = '/curriculo.pdf' // Nome exato que você colocou dentro da pasta public
-  link.download = 'Curriculo_Marco_Antonio_Ferreira.pdf'
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
-  
-  setIsModalOpen(false)
-  setSuccessMessage('')
-  setLeadName('')
-  setLeadEmail('')
-}, 1500)
-      } else {
-        alert('Erro ao registrar contato. Tente novamente.')
-      }
+        setIsModalOpen(false)
+        setSuccessMessage('')
+        setLeadName('')
+        setLeadEmail('')
+      }, 1500)
     } catch (err) {
       console.error('Erro:', err)
-      alert('Erro de conexão.')
+      alert('Ocorreu um erro. Tente novamente.')
     } finally {
       setSubmitting(false)
     }
