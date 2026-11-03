@@ -15,6 +15,13 @@ const projects = [
     desc: 'Ecossistema web avançado para tokenização segura de ativos, verificação de documentos via blockchain, gestão de conformidade em comércio internacional (LOI/ICPO) e painel administrativo (Admin Hub).', 
     url: 'https://trust-bridge-frontend.vercel.app/', 
     github: 'https://github.com/masfgroove/trust-bridge-portal' 
+  },
+  { 
+    name: 'Vitrine Delas (LojaBrás) - E-commerce & IA Assistant', 
+    tag: 'React · Vite · Node.js · Vercel · n8n · Google AdSense', 
+    desc: 'Plataforma completa de e-commerce inspirada no polo de moda do Brás, com painel administrativo de controle de estoque/vendas, integração monetizada com Google AdSense e assistente virtual inteligente de pré-atendimento com automação n8n e WhatsApp.', 
+    url: 'https://lojabras.vercel.app/', 
+    github: 'https://github.com/masfgroove/lojabras' 
   }
 ]
 
