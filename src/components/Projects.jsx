@@ -23,6 +23,20 @@ const projects = [
     url: 'https://lojabras.vercel.app/', 
     githubFront: 'https://github.com/masfgroove/lojabras',
     githubBack: 'https://github.com/masfgroove/lojabras_backend_of' 
+  },
+  { 
+    name: 'ONG Ação & Integração - Plataforma Social', 
+    tag: 'React · Vite · Tailwind CSS · Vercel', 
+    desc: 'Portal institucional voltado para impacto social, facilitando a divulgação de projetos comunitários, campanhas de engajamento, doações e conexão entre voluntários e assistidos.', 
+    url: 'https://ong-acao-integracao.vercel.app/', 
+    github: 'https://github.com/masfgroove/ong_acao_integracao' 
+  },
+  { 
+    name: 'Dashboard Web3 - Crypto & Assets Tracker', 
+    tag: 'React · Vite · Web3 · Vercel', 
+    desc: 'Painel interativo para monitoramento de ativos descentralizados, criptomoedas e métricas de mercado em tempo real.', 
+    url: 'https://meu-dashboard-web3.vercel.app/', 
+    github: 'https://github.com/masfgroove/meu-dashboard-web3' 
   }
 ]
 
