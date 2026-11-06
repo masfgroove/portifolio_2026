@@ -25,6 +25,14 @@ const projects = [
     githubBack: 'https://github.com/masfgroove/lojabras_backend_of' 
   },
   { 
+    name: 'Meu Site AWS - Painel Administrativo Full Stack (Angular & Spring Boot)', 
+    tag: 'Angular · Bootstrap · Java · Spring Boot · AWS EC2 · Supabase', 
+    desc: 'Painel administrativo corporativo desenvolvido com Angular e Bootstrap no front-end, integrado a uma API RESTful em Java (Spring Boot) hospedada em nuvem na AWS EC2 e persistência de dados em PostgreSQL (Supabase) com CRUD completo.', 
+    url: 'http://3.129.44.20:8081/cadastros', 
+    githubFront: 'https://github.com/masfgroove/meu-site-aws',
+    githubBack: 'https://github.com/masfgroove/meu-site-aws' // Podes atualizar para o repositório específico do backend se separado
+  },
+  { 
     name: 'ONG Ação & Integração - Plataforma Social', 
     tag: 'React · Vite · Tailwind CSS · Vercel', 
     desc: 'Portal institucional voltado para impacto social, facilitando a divulgação de projetos comunitários, campanhas de engajamento, doações e conexão entre voluntários e assistidos.', 
